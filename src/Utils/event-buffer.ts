@@ -404,6 +404,8 @@ function append<E extends BufferableEvent>(
 					// if there is an existing upsert, merge the update into it
 					const upsert = data.historySets.chats[chatId] || data.chatUpserts[chatId]
 					if (upsert) {
+						// readMessageRange describes this update only; the merged object is a Chat
+						delete update.readMessageRange
 						concatChats(upsert, update)
 					} else {
 						// merge the update into the existing update
@@ -612,6 +614,7 @@ function append<E extends BufferableEvent>(
 			const conditionMatches = update.conditional ? update.conditional(data) : true
 			if (conditionMatches) {
 				delete update.conditional
+				delete update.readMessageRange
 				logger.debug({ chatId }, 'absorbed chat update in existing chat')
 				Object.assign(existing, concatChats(update as Chat, existing))
 				delete data.chatUpdates[chatId]

@@ -146,8 +146,12 @@ describe('processSyncAction', () => {
 		it('omits readMessageRange when the action has no range', () => {
 			const syncAction = createSyncAction({ markChatAsReadAction: { read: true } }, ['markRead', 'chat@s.whatsapp.net'])
 			processSyncAction(syncAction, ev, mockMe, undefined, logger)
-			const [update] = (ev.emittedEvents[0]?.data ?? []) as Array<Record<string, unknown>>
-			expect(update).not.toHaveProperty('readMessageRange')
+			expect(ev.emittedEvents).toHaveLength(1)
+			expect(ev.emittedEvents[0]!.event).toBe('chats.update')
+			const updates = ev.emittedEvents[0]!.data as Array<Record<string, unknown>>
+			expect(updates).toHaveLength(1)
+			expect(updates[0]).toMatchObject({ id: 'chat@s.whatsapp.net', unreadCount: 0 })
+			expect(updates[0]).not.toHaveProperty('readMessageRange')
 		})
 	})
 
