@@ -728,9 +728,13 @@ function consolidateEvents(data: BufferedEventData) {
 	return map
 }
 
-/** A later read-state update replaces the earlier one's range, even when it carries none. */
+/**
+ * A later read-state update replaces the earlier one's range, even when it carries none. Only markChatAsRead
+ * emits 0, a negative count or null; a positive count is a new incoming message and leaves the range alone.
+ */
 function mergeChatUpdates(a: ChatUpdate, b: ChatUpdate) {
-	if ('unreadCount' in b && !b.readMessageRange) {
+	const isReadState = b.unreadCount === null || (typeof b.unreadCount === 'number' && b.unreadCount <= 0)
+	if (isReadState && !b.readMessageRange) {
 		delete a.readMessageRange
 	}
 
