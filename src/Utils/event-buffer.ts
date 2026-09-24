@@ -410,12 +410,7 @@ function append<E extends BufferableEvent>(
 					} else {
 						// merge the update into the existing update
 						const chatUpdate = data.chatUpdates[chatId] || {}
-						// a later read-state update replaces the earlier one's range, even when it carries none
-						if ('unreadCount' in update && !update.readMessageRange) {
-							delete chatUpdate.readMessageRange
-						}
-
-						data.chatUpdates[chatId] = concatChats(chatUpdate, update)
+						data.chatUpdates[chatId] = mergeChatUpdates(chatUpdate, update)
 					}
 				} else if (conditionMatches === undefined) {
 					// condition yet to be fulfilled
@@ -731,6 +726,15 @@ function consolidateEvents(data: BufferedEventData) {
 	}
 
 	return map
+}
+
+/** A later read-state update replaces the earlier one's range, even when it carries none. */
+function mergeChatUpdates(a: ChatUpdate, b: ChatUpdate) {
+	if ('unreadCount' in b && !b.readMessageRange) {
+		delete a.readMessageRange
+	}
+
+	return concatChats(a, b)
 }
 
 function concatChats<C extends Partial<Chat>>(a: C, b: Partial<Chat>) {
