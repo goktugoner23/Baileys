@@ -79,7 +79,7 @@ export type ChatUpdate = Partial<
 		/**
 		 * set on an update from a markChatAsRead sync (the chat was read or marked unread on another device):
 		 * the message range that action covered, as sent by WhatsApp. Lets consumers tell which messages the
-		 * read applies to, instead of assuming everything up to the moment the sync arrived.
+		 * action applies to, instead of assuming everything up to the moment the sync arrived.
 		 */
 		readMessageRange?: proto.SyncActionValue.ISyncActionMessageRange
 	}
