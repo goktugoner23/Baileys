@@ -410,6 +410,11 @@ function append<E extends BufferableEvent>(
 					} else {
 						// merge the update into the existing update
 						const chatUpdate = data.chatUpdates[chatId] || {}
+						// a later read-state update replaces the earlier one's range, even when it carries none
+						if ('unreadCount' in update && !update.readMessageRange) {
+							delete chatUpdate.readMessageRange
+						}
+
 						data.chatUpdates[chatId] = concatChats(chatUpdate, update)
 					}
 				} else if (conditionMatches === undefined) {

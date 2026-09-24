@@ -43,6 +43,20 @@ describe('event-buffer', () => {
 			expect(updates.flat()).toEqual([expect.objectContaining({ id, unreadCount: 0, readMessageRange })])
 		})
 
+		it('drops a stale range when a ranged mark-read is followed by an unranged mark-unread', async () => {
+			const { ev, updates } = collect()
+			ev.buffer()
+			ev.emit('chats.update', [{ id, unreadCount: 0, readMessageRange }])
+			ev.emit('chats.update', [{ id, unreadCount: -1 }])
+			ev.flush()
+			await settle()
+
+			const merged = updates.flat().filter(u => u.id === id)
+			expect(merged).toHaveLength(1)
+			expect(merged[0]).toMatchObject({ id, unreadCount: -1 })
+			expect(merged[0]).not.toHaveProperty('readMessageRange')
+		})
+
 		it('drops readMessageRange when the update merges into a buffered upsert', async () => {
 			const { ev, upserts } = collect()
 			ev.buffer()
